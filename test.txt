@@ -1,0 +1,78 @@
+package com.company;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.stream.IntStream;
+
+
+public class Main {
+    private static final boolean[]
+        PRIMES = { false, false, true, true, false, true, false, true, false, false, false, true, false, true, false, false, false, true, false, true, false, false, false, true, false, false, false, false, false, true, false, true, false, false, false, false, false, true, false, false, false };
+    
+
+    public static void main(String[] args) throws IOException {
+        InputStreamReader reader = new InputStreamReader(System.in, StandardCharsets.UTF_8);
+        BufferedReader in = new BufferedReader(reader);
+
+        String line;
+        while ((line = in.readLine()) != null) {
+            System.out.println(permutations(Integer.parseInt(line)));
+        }
+    }
+
+
+    private static int permutations(int n) {
+        int[] circle = IntStream.rangeClosed(1, n).toArray();
+        int[] elements = IntStream.rangeClosed(1, n).toArray();
+        int i = 1;
+        boolean[] visited = new boolean[circle.length+1];
+        visited[0] = true; 
+        visited[1] = true; 
+        return elementPermutations(circle, elements, visited, i);
+    }
+
+    private static int elementPermutations(int[] circle, int[] elements, boolean[] used, int beadIndex) {
+        if (beadIndex == circle.length) {
+            boolean isNecklaceValid = isValidPermutation(circle);
+            return isNecklaceValid ? 1 : 0;
+        }
+        
+        if ((beadIndex > 1) &&
+            (!isPrimeNumber(circle[beadIndex-1] + circle[beadIndex-2]))) {
+            return 0;
+        }
+
+
+        int count = 0;
+        boolean isEvenBead = beadIndex % 2 != 0; 
+
+        for (int i=(isEvenBead ? 1 : 0); i < circle.length; i+=2) { //
+            if (used[elements[i]]) continue;
+
+            circle[beadIndex] = elements[i];
+            used[elements[i]] = true;
+            count += elementPermutations(circle, elements, used, beadIndex+1);
+            used[elements[i]] = false;
+        }
+
+
+        return count;
+    }
+
+    private static boolean isValidPermutation(int[] beads) {
+        for (int i = 0; i < beads.length; i++) {
+            int j = (i + 1) % beads.length;
+
+            if (!isPrimeNumber(beads[i] + beads[j])) return false;
+        }
+        return true;
+    }
+
+    private static boolean isPrimeNumber(int number) {
+        return PRIMES[number];
+    }
+}
+
+
